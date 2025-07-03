@@ -1,0 +1,63 @@
+/* Custom styles can go here, though Tailwind handles most of it. */
+/* This is primarily for subtle overrides or specific element styling not covered by Tailwind. */
+
+/* Example: Customizing the range input thumb for better visibility */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3B82F6; /* Blue-600 */
+    cursor: grab;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); /* Blue-600 with opacity */
+    transition: background .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3B82F6; /* Blue-600 */
+    cursor: grab;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); /* Blue-600 with opacity */
+    transition: background .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    background: #2563EB; /* Blue-700 */
+}
+
+input[type="range"]::-moz-range-thumb:active {
+    cursor: grabbing;
+    background: #2563EB; /* Blue-700 */
+}
+
+/* Style for checkboxes */
+input[type="checkbox"] {
+    /* Custom styles for better appearance if needed, otherwise Tailwind handles it */
+    border-radius: 0.375rem; /* rounded-md */
+}
+
+/* Focus styles for checkboxes */
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45); /* focus:ring-blue-500 */
+}
+
+/* Ensure the body takes full height for centering */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+    margin: 0; /* Remove default body margin */
+}
+
+/* Responsive adjustments for smaller screens if needed, though Tailwind handles most */
+@media (max-width: 640px) {
+    .grid-cols-1.sm:grid-cols-2 {
+        grid-template-columns: 1fr; /* Stack options on very small screens */
+    }
+}

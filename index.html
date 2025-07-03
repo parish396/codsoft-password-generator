@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS for additional styling -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-blue-500 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Password Generator</h1>
+
+        <!-- Password Length Input -->
+        <div class="mb-5">
+            <label for="passwordLength" class="block text-gray-700 text-sm font-semibold mb-2">
+                Password Length: <span id="lengthValue" class="text-blue-600">12</span>
+            </label>
+            <input type="range" id="passwordLength" min="6" max="32" value="12"
+                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg">
+        </div>
+
+        <!-- Character Type Options -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="flex items-center">
+                <input type="checkbox" id="includeUppercase" checked
+                       class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500">
+                <label for="includeUppercase" class="ml-2 text-gray-700">Uppercase (A-Z)</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="includeLowercase" checked
+                       class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500">
+                <label for="includeLowercase" class="ml-2 text-gray-700">Lowercase (a-z)</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="includeNumbers" checked
+                       class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500">
+                <label for="includeNumbers" class="ml-2 text-gray-700">Numbers (0-9)</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="includeSymbols"
+                       class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500">
+                <label for="includeSymbols" class="ml-2 text-gray-700">Symbols (!@#$)</label>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generateButton"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105">
+            Generate Password
+        </button>
+
+        <!-- Generated Password Display -->
+        <div class="mt-6">
+            <label for="generatedPassword" class="block text-gray-700 text-sm font-semibold mb-2">
+                Your Generated Password:
+            </label>
+            <div class="relative">
+                <input type="text" id="generatedPassword" readonly
+                       class="w-full bg-gray-100 border border-gray-300 text-gray-800 py-3 px-4 pr-12 rounded-xl text-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button id="copyButton"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200">
+                    <!-- Copy icon (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Message box for copy confirmation -->
+            <div id="messageBox" class="mt-3 p-3 bg-green-100 text-green-800 rounded-lg text-sm hidden">
+                Password copied to clipboard!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const passwordLengthInput = document.getElementById('passwordLength');
+        const lengthValueSpan = document.getElementById('lengthValue');
+        const includeUppercaseCheckbox = document.getElementById('includeUppercase');
+        const includeLowercaseCheckbox = document.getElementById('includeLowercase');
+        const includeNumbersCheckbox = document.getElementById('includeNumbers');
+        const includeSymbolsCheckbox = document.getElementById('includeSymbols');
+        const generateButton = document.getElementById('generateButton');
+        const generatedPasswordInput = document.getElementById('generatedPassword');
+        const copyButton = document.getElementById('copyButton');
+        const messageBox = document.getElementById('messageBox');
+
+        // Define character sets
+        const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+        const numberChars = '0123456789';
+        const symbolChars = '!@#$%^&*()_-+=[]{}|;:,.<>?';
+
+        // Update length value display when slider moves
+        passwordLengthInput.addEventListener('input', () => {
+            lengthValueSpan.textContent = passwordLengthInput.value;
+        });
+
+        // Function to generate password
+        function generatePassword() {
+            let allChars = '';
+            let generatedPassword = '';
+            const length = parseInt(passwordLengthInput.value);
+
+            // Build the character pool based on selected options
+            if (includeUppercaseCheckbox.checked) {
+                allChars += uppercaseChars;
+            }
+            if (includeLowercaseCheckbox.checked) {
+                allChars += lowercaseChars;
+            }
+            if (includeNumbersCheckbox.checked) {
+                allChars += numberChars;
+            }
+            if (includeSymbolsCheckbox.checked) {
+                allChars += symbolChars;
+            }
+
+            // If no character type is selected, show an error and return
+            if (allChars === '') {
+                showMessageBox('Please select at least one character type!', 'bg-red-100 text-red-800');
+                generatedPasswordInput.value = '';
+                return;
+            }
+
+            // Ensure at least one character from each selected type is included
+            // This makes the password stronger by guaranteeing variety
+            if (includeUppercaseCheckbox.checked) {
+                generatedPassword += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+            }
+            if (includeLowercaseCheckbox.checked) {
+                generatedPassword += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+            }
+            if (includeNumbersCheckbox.checked) {
+                generatedPassword += numberChars[Math.floor(Math.random() * numberChars.length)];
+            }
+            if (includeSymbolsCheckbox.checked) {
+                generatedPassword += symbolChars[Math.floor(Math.random() * symbolChars.length)];
+            }
+
+            // Fill the rest of the password length with random characters from the combined pool
+            for (let i = generatedPassword.length; i < length; i++) {
+                generatedPassword += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+
+            // Shuffle the generated password to ensure randomness of initial guaranteed characters
+            generatedPassword = generatedPassword.split('').sort(() => Math.random() - 0.5).join('');
+
+            // Trim to the exact length if it somehow exceeded (due to guaranteed characters)
+            generatedPasswordInput.value = generatedPassword.substring(0, length);
+        }
+
+        // Event listener for the generate button
+        generateButton.addEventListener('click', generatePassword);
+
+        // Function to show a temporary message box
+        function showMessageBox(message, className) {
+            messageBox.textContent = message;
+            messageBox.className = `mt-3 p-3 rounded-lg text-sm ${className}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Copy password to clipboard
+        copyButton.addEventListener('click', () => {
+            generatedPasswordInput.select(); // Select the text in the input field
+            generatedPasswordInput.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                // Use document.execCommand('copy') for better compatibility in iframes
+                document.execCommand('copy');
+                showMessageBox('Password copied to clipboard!', 'bg-green-100 text-green-800');
+            } catch (err) {
+                showMessageBox('Failed to copy password!', 'bg-red-100 text-red-800');
+                console.error('Failed to copy: ', err);
+            }
+        });
+
+        // Generate a password on initial load
+        generatePassword();
+    </script>
+</body>
+</html>
